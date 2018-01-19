@@ -1,4 +1,4 @@
-GOOGLE_TEST_PATH=../../../googletest
+GOOGLE_TEST_PATH=../../googletest
 GLM_PATH=../../../glm-0.9.8.5
 
 SRC=$(wildcard *.cpp)

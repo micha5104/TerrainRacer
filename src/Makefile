@@ -1,10 +1,13 @@
+GOOGLE_TEST_PATH=../../../googletest
+GLM_PATH=../../../glm-0.9.8.5
+
 SRC=$(wildcard *.cpp)
 SRC+=$(wildcard utils/*.cpp)
 HDR=$(wildcard *.h)
 HDR+=$(wildcard utils/*.h)
 
 TST_SRC=$(wildcard test/*.cpp)
-TST_HDR=../../googletest/googletest/include/gtest/*.h
+TST_HDR=$(GOOGLE_TEST_PATH)/googletest/include/gtest/*.h
 
 CXX = /opt/local/bin/ccache g++
 
@@ -26,9 +29,9 @@ INCLUDES := -Wno-deprecated \
 	-g \
 	-I/System/Library/Frameworks/OpenGL.framework/Headers \
 	-I/opt/X11/include \
-	-I../../googletest/googletest/include \
-	-I../../googletest/googletest \
-	-I../../../glm-0.9.8.5 \
+	-I$(GOOGLE_TEST_PATH)/googletest/include \
+	-I$(GOOGLE_TEST_PATH)/googletest \
+	-I$(GLM_PATH) \
 	-I/opt/local/include
 
 LIBS := -L/opt/X11/lib -framework OpenGL -framework GLUT -L/opt/local/lib -ljpeg
@@ -48,7 +51,7 @@ $(OBJ_DIR)/%.o: test/%.cpp
 	@echo " CXX "$<
 	$(CXX) -c $< -o $@ $(INCLUDES)
 
-$(OBJ_DIR)/gtest-all.o: ../../googletest/googletest/src/gtest-all.cpp
+$(OBJ_DIR)/gtest-all.o: $(GOOGLE_TEST_PATH)/googletest/src/gtest-all.cpp
 	@echo " CXX "$<
 	$(CXX) -c $< -o $@ $(INCLUDES)
 

@@ -2,7 +2,9 @@
 #define TANK_H
 
 #include "glm/vec3.hpp"
+#include "VertexObject.h"
 #include <vector>
+#include <map>
 
 class Tank
 {
@@ -59,9 +61,7 @@ private:
 
     float mVelocity = 0.0f;
 
-    std::vector<glm::vec3> mVertices;
-    std::vector<glm::vec3> mNormals;
-    std::vector<glm::vec2> mUvs;
+    std::map<std::string, VertexObject> mObjects;
     bool mModelLoaded = false;
 
     const float pi = 3.1415926536f;

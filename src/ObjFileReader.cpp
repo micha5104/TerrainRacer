@@ -6,143 +6,137 @@
  */
 
 #include "ObjFileReader.h"
+#include "Utils.h"
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
 
 ObjFileReader::ObjFileReader()
 {
-    // TODO Auto-generated constructor stub
-
 }
 
 ObjFileReader::~ObjFileReader()
 {
-    // TODO Auto-generated destructor stub
 }
 
-std::vector<glm::vec3> ObjFileReader::getVertices()
+std::map<std::string, VertexObject> ObjFileReader::getObjects()
 {
     if (mLoadedFileSuccessfully)
     {
-        return mVertices;
+        return mObjects;
     }
     else
     {
-        return std::vector<glm::vec3>();
+        return std::map<std::string, VertexObject>();
     }
 }
 
-std::vector<glm::vec2> ObjFileReader::getUvs()
-{
-    if (mLoadedFileSuccessfully)
-    {
-        return mUvs;
-    }
-    else
-    {
-        return std::vector<glm::vec2>();
-    }
-}
-
-std::vector<glm::vec3> ObjFileReader::getNormals()
-{
-    if (mLoadedFileSuccessfully)
-    {
-        return mNormals;
-    }
-    else
-    {
-        return std::vector<glm::vec3>();
-    }
-}
-
-bool ObjFileReader::loadFile(std::string filename)
+bool ObjFileReader::loadFile(std::string filename, float scaleFactor)
 {
     mLoadedFileSuccessfully = false;
-    std::vector<unsigned int> vertexIndices;
-    std::vector<unsigned int> uvIndices;
-    std::vector<unsigned int> normalIndices;
+    mObjects.clear();
 
     std::vector < glm::vec3 > temp_vertices;
     std::vector < glm::vec2 > temp_uvs;
     std::vector < glm::vec3 > temp_normals;
 
-    FILE * file = fopen(filename.c_str(), "r");
-    if (file == NULL)
+    VertexObject obj;
+    bool objIsValid = false;
+
+    std::ifstream infile(filename);
+    if (infile.good() == false)
     {
         printf("Impossible to open the file !\n");
         return false;
     }
 
-    while (true)
+    std::string line;
+    while (std::getline(infile, line))
     {
-        char lineHeader[128];
-        // read the first word of the line
-        int res = fscanf(file, "%s", lineHeader);
-        if (res == EOF)
-        {
-            break; // EOF = End Of File. Quit the loop.
-        }
+        std::vector<std::string> words = Utils::split(line, ' ');
 
-        // else : parse lineHeader
-        if (strcmp(lineHeader, "v") == 0)
+        std::string lineHeader = words[0];
+        if (lineHeader == "o")
+        {
+            if (objIsValid)
+            {
+                mObjects[obj.getName()] = obj;
+                obj = VertexObject();
+            }
+            objIsValid = true;
+        }
+        else if (lineHeader == "g")
+        {
+            obj.setName(words[1]);
+        }
+        else if (lineHeader == "v")
         {
             glm::vec3 vertex;
-            fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-            temp_vertices.push_back(vertex);
+            vertex.x = std::stof(words[1]);
+            vertex.y = std::stof(words[2]);
+            vertex.z = std::stof(words[3]);
+            temp_vertices.push_back(vertex * scaleFactor);
         }
-        else if (strcmp(lineHeader, "vt") == 0)
+        else if (lineHeader == "vt")
         {
             glm::vec2 uv;
-            fscanf(file, "%f %f\n", &uv.x, &uv.y);
+            uv.x = std::stof(words[1]);
+            uv.y = std::stof(words[2]);
             temp_uvs.push_back(uv);
         }
-        else if (strcmp(lineHeader, "vn") == 0)
+        else if (lineHeader == "vn")
         {
             glm::vec3 normal;
-            fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+            normal.x = std::stof(words[1]);
+            normal.y = std::stof(words[2]);
+            normal.z = std::stof(words[3]);
             temp_normals.push_back(normal);
         }
-        else if (strcmp(lineHeader, "f") == 0)
+        else if (lineHeader == "f")
         {
-            std::string vertex1, vertex2, vertex3;
-            unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-            if (matches != 9)
+            int vertexCounter = 0;
+            int matches = 0;
+            std::vector<unsigned int> vertexIndices;
+            std::vector<unsigned int> uvIndices;
+            std::vector<unsigned int> normalIndices;
+
+            int index = 0;
+            for (int i = 1; i < words.size(); ++i)
             {
-                printf("File can't be read by our simple parser : ( Try exporting with other options\n");
-                return false;
+                std::vector<std::string> indices = Utils::split(words[i], '/');
+                if (indices.size() > 2)
+                {
+                    unsigned int vertexIndex = indices[0].empty() ? 0 : std::stoi(indices[0]);
+                    unsigned int uvIndex = indices[1].empty() ? 0 : std::stoi(indices[1]);
+                    unsigned int normalIndex = indices[2].empty() ? 0 : std::stoi(indices[2]);
+
+                    vertexCounter++;
+                    vertexIndices.push_back(vertexIndex);
+                    uvIndices.push_back(uvIndex);
+                    normalIndices.push_back(normalIndex);
+                }
+                index++;
             }
-            vertexIndices.push_back(vertexIndex[0]);
-            vertexIndices.push_back(vertexIndex[1]);
-            vertexIndices.push_back(vertexIndex[2]);
-            uvIndices.push_back(uvIndex[0]);
-            uvIndices.push_back(uvIndex[1]);
-            uvIndices.push_back(uvIndex[2]);
-            normalIndices.push_back(normalIndex[0]);
-            normalIndices.push_back(normalIndex[1]);
-            normalIndices.push_back(normalIndex[2]);
+
+            std::vector<glm::vec3> vertices;
+            std::vector<glm::vec3> normals;
+            for (const auto& vertexIndex : vertexIndices)
+            {
+                vertices.push_back(temp_vertices[vertexIndex]);
+            }
+            for (const auto& normalIndex : normalIndices)
+            {
+                normals.push_back(temp_normals[normalIndex]);
+            }
+
+            obj.addFace(vertexCounter, vertices, normals);
         }
     }
-
-    // For each vertex of each triangle
-    for (unsigned int i = 0; i < vertexIndices.size(); i++)
+    if (objIsValid)
     {
-        unsigned int vertexIndex = vertexIndices[i];
-        glm::vec3 vertex = temp_vertices[vertexIndex - 1];
-        mVertices.push_back(vertex);
-    }
-
-    for (auto& uvIndex : uvIndices)
-    {
-        glm::vec2 uv = temp_uvs[uvIndex - 1];
-        mUvs.push_back(uv);
-    }
-
-    for (auto& normalIndex : normalIndices)
-    {
-        glm::vec3 normal = temp_normals[normalIndex - 1];
-        mNormals.push_back(normal);
+        mObjects[obj.getName()] = obj;
     }
 
     mLoadedFileSuccessfully = true;

@@ -6,6 +6,7 @@
 #include "glm/gtc/quaternion.hpp"
 #include <iostream>
 #include <chrono>
+#include <vector>
 
 /*
  * Interesting things for later:
@@ -34,6 +35,8 @@ public:
     /* @brief Build a unit quaternion representing the rotation
      * from u to v. The input vectors need to be normalised. */
     static glm::quat quatFromTwoVectors(glm::vec3 u, glm::vec3 v);
+
+    static std::vector<std::string> split(const std::string &s, char delim);
 };
 
 std::ostream& operator<<(std::ostream&, const glm::vec2&);

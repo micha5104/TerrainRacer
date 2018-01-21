@@ -8,9 +8,10 @@
 #ifndef OBJFILEREADER_H_
 #define OBJFILEREADER_H_
 
-#include "glm/vec3.hpp"
+#include "VertexObject.h"
 #include <vector>
 #include <string>
+#include <map>
 
 class ObjFileReader
 {
@@ -18,17 +19,14 @@ public:
     ObjFileReader();
     virtual ~ObjFileReader();
 
-    bool loadFile(std::string filename);
+    bool loadFile(std::string filename, float scaleFactor = 1.0);
 
-    std::vector<glm::vec3> getVertices();
-    std::vector<glm::vec2> getUvs();
-    std::vector<glm::vec3> getNormals();
+    std::map<std::string, VertexObject> getObjects();
 
 protected:
     bool mLoadedFileSuccessfully = false;
-    std::vector<glm::vec3> mVertices;
-    std::vector<glm::vec2> mUvs;
-    std::vector<glm::vec3> mNormals;
+
+    std::map<std::string, VertexObject> mObjects;
 };
 
 #endif /* OBJFILEREADER_H_ */

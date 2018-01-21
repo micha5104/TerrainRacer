@@ -19,14 +19,10 @@ Tank::Tank()
     mPosition = glm::vec3(0.0, 0.0, 0.0);
 
     ObjFileReader rdr;
-    bool ret = rdr.loadFile("./Vehicle.obj");
+    bool ret = rdr.loadFile("./Vehicle.obj", 0.01);
     if (ret)
     {
-        mVertices = rdr.getVertices();
-        mNormals = rdr.getNormals();
-        mUvs = rdr.getUvs();
-        //glBufferData(GL_ARRAY_BUFFER, mVertices.size() * sizeof(glm::vec3), &mVertices[0], GL_STATIC_DRAW);
-
+        mObjects = rdr.getObjects();
         mModelLoaded = true;
     }
 }
@@ -220,12 +216,67 @@ void Tank::drawModel(Model model)
     }
     else if (model == Model::File)
     {
-        glBegin(GL_TRIANGLES);
-        for (auto& vertex : mVertices)
+//        std::array<VertexObject, 4> wheels =
+//                        { mObjects["Wheel_FL"], mObjects["Wheel_FR"], mObjects["Wheel_BL"], mObjects["Wheel_BR"] };
+        std::array<VertexObject, 1> wheels =
+                        { mObjects["Wheel_FL"] };
+        for (auto& wheel : wheels)
         {
-            glVertex3f(vertex.x, vertex.y, vertex.z);
+            auto faces = wheel.getFaces();
+            for (const auto& face : faces)
+            {
+                if (face.type == VertexObject::Type::Triangle)
+                {
+                    glBegin(GL_TRIANGLES);
+                }
+                else if (face.type == VertexObject::Type::Quad)
+                {
+                    glBegin(GL_QUADS);
+                }
+                else
+                {
+                    glBegin(GL_POLYGON);
+                }
+
+                const std::vector<glm::vec3>& vertices = face.vertices;
+                const std::vector<glm::vec3>& normals = face.normals;
+                for (int i = 0; i < vertices.size(); ++i)
+                {
+                    glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
+                    glNormal3f(normals[i].x, normals[i].y, normals[i].z);
+                }
+                glEnd();
+            }
         }
-        glEnd();
+
+#if 0
+        VertexObject chassis = mObjects["Chassis"];
+        auto faces = chassis.getFaces();
+        for (const auto& face : faces)
+        {
+            if (face.type == VertexObject::Type::Triangle)
+            {
+                glBegin(GL_TRIANGLES);
+            }
+            else if (face.type == VertexObject::Type::Quad)
+            {
+                glBegin(GL_QUADS);
+            }
+            else
+            {
+                glBegin(GL_POLYGON);
+            }
+
+            const std::vector<glm::vec3>& vertices = face.vertices;
+            const std::vector<glm::vec3>& normals = face.normals;
+            for (int i = 0; i < vertices.size(); ++i)
+            {
+                glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
+                glNormal3f(normals[i].x, normals[i].y, normals[i].z);
+            }
+            glEnd();
+        }
+#endif
     }
     else
     {

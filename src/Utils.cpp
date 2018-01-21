@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include <sstream>
 
 unsigned long Utils::clockTimeMs()
 {
@@ -70,4 +71,16 @@ std::ostream& operator<<(std::ostream& os, const glm::quat& q)
 {
     os << "(" << q.w << " " << q.x << " " << q.y << " " << q.z << ")";
     return os;
+}
+
+std::vector<std::string> Utils::split(const std::string &s, char delim)
+{
+    std::stringstream ss(s);
+    std::string item;
+    std::vector<std::string> tokens;
+    while (getline(ss, item, delim))
+    {
+        tokens.push_back(item);
+    }
+    return tokens;
 }

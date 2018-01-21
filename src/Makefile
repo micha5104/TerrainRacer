@@ -21,7 +21,7 @@ OBJS := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(notdir $(SRC)))
 TST_OBJS := $(addprefix $(OBJ_DIR)/,$(subst test/,,$(TST_SRC:.cpp=.o)))
 TST_OBJS += $(filter-out $(OBJ_DIR)/main.o,$(OBJS))
 
-BINARY:=experiment
+BINARY:=../experiment
 TST_BINARY:=unittests
 
 INCLUDES := -Wno-deprecated \

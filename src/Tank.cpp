@@ -19,7 +19,7 @@ Tank::Tank()
     mPosition = glm::vec3(0.0, 0.0, 0.0);
 
     ObjFileReader rdr;
-    bool ret = rdr.loadFile("./Vehicle.obj", 0.01);
+    bool ret = rdr.loadFile("./Vehicle.obj", 0.005);
     if (ret)
     {
         mObjects = rdr.getObjects();
@@ -216,10 +216,10 @@ void Tank::drawModel(Model model)
     }
     else if (model == Model::File)
     {
-//        std::array<VertexObject, 4> wheels =
-//                        { mObjects["Wheel_FL"], mObjects["Wheel_FR"], mObjects["Wheel_BL"], mObjects["Wheel_BR"] };
-        std::array<VertexObject, 1> wheels =
-                        { mObjects["Wheel_FL"] };
+        glPushMatrix();
+        glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+        std::array<VertexObject, 4> wheels =
+                        { mObjects["Wheel_FL"], mObjects["Wheel_FR"], mObjects["Wheel_BL"], mObjects["Wheel_BR"] };
         for (auto& wheel : wheels)
         {
             auto faces = wheel.getFaces();
@@ -249,7 +249,7 @@ void Tank::drawModel(Model model)
             }
         }
 
-#if 0
+#if 1
         VertexObject chassis = mObjects["Chassis"];
         auto faces = chassis.getFaces();
         for (const auto& face : faces)
@@ -277,6 +277,7 @@ void Tank::drawModel(Model model)
             glEnd();
         }
 #endif
+        glPopMatrix();
     }
     else
     {

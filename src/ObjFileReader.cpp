@@ -124,11 +124,11 @@ bool ObjFileReader::loadFile(std::string filename, float scaleFactor)
             std::vector<glm::vec3> normals;
             for (const auto& vertexIndex : vertexIndices)
             {
-                vertices.push_back(temp_vertices[vertexIndex]);
+                vertices.push_back(temp_vertices[vertexIndex - 1]);
             }
             for (const auto& normalIndex : normalIndices)
             {
-                normals.push_back(temp_normals[normalIndex]);
+                normals.push_back(temp_normals[normalIndex - 1]);
             }
 
             obj.addFace(vertexCounter, vertices, normals);

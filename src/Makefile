@@ -1,3 +1,5 @@
+DEBUG=0
+
 GOOGLE_TEST_PATH=../../googletest
 GLM_PATH=../../../glm-0.9.8.5
 
@@ -21,14 +23,21 @@ OBJS := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(notdir $(SRC)))
 TST_OBJS := $(addprefix $(OBJ_DIR)/,$(subst test/,,$(TST_SRC:.cpp=.o)))
 TST_OBJS += $(filter-out $(OBJ_DIR)/main.o,$(OBJS))
 
-BINARY:=../experiment
+BINARY:=../TerrainRacer
 TST_BINARY:=unittests
+
+ifeq ($(DEBUG), 0)
+OPTIMISATION=-O3
+else
+OPTIMISATION=-g
+endif
 
 INCLUDES := -Wno-deprecated \
 	-std=c++11 \
-	-g \
+	$(OPTIMISATION) \
 	-I/System/Library/Frameworks/OpenGL.framework/Headers \
 	-I/opt/X11/include \
+	-I/opt/X11/include/GL \
 	-I$(GOOGLE_TEST_PATH)/googletest/include \
 	-I$(GOOGLE_TEST_PATH)/googletest \
 	-I$(GLM_PATH) \

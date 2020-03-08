@@ -16,7 +16,9 @@ public:
 
     void setCorner(int index, const glm::vec3& coord);
     glm::vec3 getCorner(int index) const;
+    glm::vec3 getBarycentricCorner(int index) const;
     glm::vec3 getNormal() const;
+    glm::vec3 getIncircleCenter() const;
 
     std::array<glm::vec3, 3> getCorners() const;
 
@@ -28,9 +30,12 @@ public:
      */
     bool cartesianToBarycentric(const glm::vec2& v, double& a, double& b, double& c) const;
 
+    glm::vec3 barycentricToCartesian(const glm::vec3& barycentric) const;
+
     double interpolateHeight(float x, float y) const;
 
     bool operator ==(const Triangle& other) const;
+    bool operator !=(const Triangle& other) const;
     Triangle& operator =(const Triangle &right);
 
 private:

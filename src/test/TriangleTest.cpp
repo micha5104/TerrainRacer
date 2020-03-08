@@ -35,7 +35,7 @@ namespace
     // Objects declared here can be used by all tests in the test case for Landscape.
     TEST(TriangleTest, InterpolateHeight)
     {
-        const double epsilon = 10e-6;
+        const double epsilon = 1e-6;
 
         glm::vec3 a(0, 0, 0);
         glm::vec3 b(1, 0, 0);
@@ -97,5 +97,29 @@ namespace
         EXPECT_EQ(normal.x, 0);
         EXPECT_EQ(normal.y, 0);
         EXPECT_EQ(normal.z, 1);
+    }
+
+    TEST(TriangleTest, Incircle)
+    {
+        const double epsilon = 1e-6;
+
+        glm::vec3 p1(1, 0, 0);
+        glm::vec3 p2(1, 1, 0);
+        glm::vec3 p3(0, 1, 0);
+        Triangle triangle;
+        triangle.setCorner(0, p1);
+        triangle.setCorner(1, p2);
+        triangle.setCorner(2, p3);
+
+        double a = glm::length(p3 - p2);
+        double b = glm::length(p1 - p3);
+        double c = glm::length(p2 - p1);
+        double P = a + b + c;
+        glm::vec2 incenter = glm::vec2( (a * p1.x + b * p2.x + c * p3.x) / P , (a * p1.y + b * p2.y + c * p3.y) / P );
+
+        glm::vec3 value = triangle.getIncircleCenter();
+        EXPECT_LE(fabs(value.x - incenter.x), epsilon);
+        EXPECT_LE(fabs(value.y - incenter.y), epsilon);
+        EXPECT_EQ(value.z, 0);
     }
 }

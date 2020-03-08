@@ -63,8 +63,6 @@ private:
 
     std::map<std::string, VertexObject> mObjects;
     bool mModelLoaded = false;
-
-    const float pi = 3.1415926536f;
 };
 
 #endif

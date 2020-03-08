@@ -2,6 +2,7 @@
 
 #include "Utils.h"
 #include <iostream>
+#include <glm/gtc/type_ptr.hpp>
 
 #define DEBUG 0
 
@@ -106,8 +107,8 @@ void Landscape::generateFlatSurface()
 
 void Landscape::generateHeightMapSurface()
 {
-//    std::string filename = "images/Terrain/terrain01_1081x1081.jpeg";
-    std::string filename = "images/Terrain/Garmisch.jpeg";
+    std::string filename = "images/Terrain/terrain01_1081x1081.jpeg";
+//    std::string filename = "images/Terrain/Garmisch.jpeg";
     mScale = 2.0;
     bool ret = loadHeightmap(filename);
     if (ret)
@@ -153,6 +154,11 @@ void Landscape::interpolateTriangles()
                 mTriangles.push_back(t);
             }
         }
+    }
+    for (auto& triangle : mTriangles)
+    {
+        glm::vec3 normal = triangle.getNormal();
+        mTriangleNormals.push_back(normal);
     }
 }
 
@@ -293,9 +299,10 @@ const GLfloat* Landscape::getMaterialShininess()
 void Landscape::draw(glm::vec2 position, float radius)
 {
     unsigned long start = Utils::clockTimeMs();
-    glBegin(GL_TRIANGLES);
-    for (const auto& triangle : mTriangles)
+
+    for (size_t i = 0; i < mTriangles.size(); ++i)
     {
+        auto& triangle = mTriangles[i];
         glm::vec3 corner = triangle.getCorner(0);
 //        460ms
 //        glm::vec2 diff = position - glm::vec2(corner.x, corner.y);
@@ -310,6 +317,8 @@ void Landscape::draw(glm::vec2 position, float radius)
         float dy = position.y - corner.y;
         if (radius * radius < (dx * dx + dy * dy))
             continue;
+        glBegin(GL_TRIANGLES);
+        glm::vec3 p;
         for (int vertex = 0; vertex < 3; ++vertex)
         {
             if (vertex == 0)
@@ -325,17 +334,71 @@ void Landscape::draw(glm::vec2 position, float radius)
                 glTexCoord2i(0, 1);
             }
 
-            glm::vec3 p = triangle.getCorner(vertex);
+            p = triangle.getCorner(vertex);
             glVertex3f(p.x, p.y, p.z);
         }
-        glm::vec3 normalVec = triangle.getNormal();
-        glNormal3f(normalVec.x, normalVec.y, normalVec.z);
+        glm::vec3 normalVec = mTriangleNormals[i / 3];
+        glNormal3fv(glm::value_ptr(normalVec));
+        glEnd();
     }
-    glEnd();
     unsigned long end = Utils::clockTimeMs();
     if (end - start > 16)
     {
         std::cout << "WARNING: Landscape slow: " << end - start << "ms" << std::endl;
+    }
+}
+
+void Landscape::drawNormals(glm::vec2 position, float radius)
+{
+    Triangle localTriangle = findTriangle(position.x,  position.y);
+    for (const auto& triangle : mTriangles)
+    {
+        glm::vec3 corner = triangle.getCorner(0);
+        float dx = position.x - corner.x;
+        float dy = position.y - corner.y;
+
+        if (radius > 0)
+        {
+            if (radius * radius < (dx * dx + dy * dy))
+                continue;
+        }
+        else
+        {
+            if (triangle != localTriangle) continue;
+        }
+
+        glMatrixMode( GL_MODELVIEW );
+        glPushMatrix();
+
+        glPushAttrib( GL_ENABLE_BIT );
+        glDisable( GL_LIGHTING );
+
+        glColor3f( 1.0f, 1.0f, 0.0f );// Yellow
+
+        const float factor = 2.0;
+        glBegin( GL_LINES );
+#if 1
+        glm::vec3 p = triangle.getIncircleCenter();
+        glm::vec3 normalVec = triangle.getNormal();
+        glVertex3f(p.x, p.y, p.z);
+        glVertex3fv(glm::value_ptr(p + normalVec * factor));
+//        std::cout << p.x << " " << p.y << " " << p.z << "\n";
+#else
+        for (int i = 0 ; i < 3; ++i)
+        {
+            glm::vec3 p = triangle.getCorner(i);
+            glm::vec3 normalVec = triangle.getNormal();
+
+            glVertex3f(p.x, p.y, p.z);
+            glVertex3fv(glm::value_ptr(p + normalVec * factor));
+//            std::cout << i << " " << p.x << " " << p.y << " " << p.z << " - " << normalVec.x << " " << normalVec.y << " " << normalVec.z << "\n";
+        }
+#endif
+        glEnd();
+
+        glPopAttrib();
+
+        glPopMatrix();
     }
 }
 

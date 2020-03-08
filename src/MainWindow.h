@@ -29,6 +29,7 @@ private:
     double mProgress = 0.0;
 
     Landscape mLandscape;
+
     glm::vec2 mPosition;
     //double mDirection; // 0..360 deg
     double mCameraHeight = 5.0;
@@ -48,11 +49,11 @@ private:
 
     // light from up at infinity
     std::array<GLfloat, 4> light_position =
-                    { 0.0, 0.0, 1.0, 0.0 };
-
-    const float pi = 3.1415926536;
+                    { 0.0, 0.0, 100.0, 0.0 };
 
     GLuint mGrassTexture;
+
+    unsigned int mFrame = 0;
 };
 
 #endif

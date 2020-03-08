@@ -127,7 +127,7 @@ void Terrain::terminate()
 {
     deleteVertexBuffer(mGLVertexBuffer);
     deleteVertexBuffer(mGLNormalBuffer);
-    deleteVertexBuffer(mGLVertexBuffer);
+    deleteVertexBuffer(mGLColorBuffer);
     deleteVertexBuffer(mGLTex0Buffer);
     deleteVertexBuffer(mGLTex1Buffer);
     deleteVertexBuffer(mGLTex2Buffer);
@@ -342,7 +342,7 @@ void Terrain::generateVertexBuffers()
     // First generate the buffer object ID's
     createVertexBuffer(mGLVertexBuffer);
     createVertexBuffer(mGLNormalBuffer);
-    createVertexBuffer(mGLVertexBuffer);
+    createVertexBuffer(mGLColorBuffer);
     createVertexBuffer(mGLTex0Buffer);
     createVertexBuffer(mGLTex1Buffer);
     createVertexBuffer(mGLTex2Buffer);
@@ -352,7 +352,7 @@ void Terrain::generateVertexBuffers()
     glBindBufferARB( GL_ARRAY_BUFFER_ARB, mGLVertexBuffer);
     glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(glm::vec3) * mPositionBuffer.size(), &(mPositionBuffer[0]), GL_STATIC_DRAW_ARB);
 
-    glBindBufferARB( GL_ARRAY_BUFFER_ARB, mGLVertexBuffer);
+    glBindBufferARB( GL_ARRAY_BUFFER_ARB, mGLColorBuffer);
     glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(glm::vec4) * mColorBuffer.size(), &(mColorBuffer[0]), GL_STATIC_DRAW_ARB);
 
     glBindBufferARB( GL_ARRAY_BUFFER_ARB, mGLNormalBuffer);
@@ -536,7 +536,7 @@ void Terrain::render()
 
     glBindBufferARB( GL_ARRAY_BUFFER_ARB, mGLVertexBuffer);
     glVertexPointer( 3, GL_FLOAT, 0, BUFFER_OFFSET(0) );
-    glBindBufferARB( GL_ARRAY_BUFFER_ARB, mGLVertexBuffer);
+    glBindBufferARB( GL_ARRAY_BUFFER_ARB, mGLColorBuffer);
     glColorPointer( 4, GL_FLOAT, 0, BUFFER_OFFSET(0) );
     glBindBufferARB( GL_ARRAY_BUFFER_ARB, mGLNormalBuffer);
     glNormalPointer( GL_FLOAT, 0, BUFFER_OFFSET(0) );

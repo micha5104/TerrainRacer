@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "Constants.h"
 #include "Utils.h"
 #include "Matrix.h"
 #include "glm/mat3x3.hpp"
@@ -19,7 +20,10 @@ MainWindow::MainWindow()
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
 	glShadeModel(GL_SMOOTH);
-    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
+	// enable next line to only draw wireframes
+	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
 
     glLightfv(GL_LIGHT0, GL_POSITION, &light_position[0]);
 
@@ -59,6 +63,8 @@ void MainWindow::reshape(int width, int height)
 
 void MainWindow::display()
 {
+    mFrame++;
+    unsigned long start = Utils::clockTimeMs();
     //std::cout << "display" << std::endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode (GL_MODELVIEW);
@@ -117,8 +123,14 @@ void MainWindow::display()
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
 
+    mLandscape.drawNormals(mPosition, 0);
     mTank.draw();
 
+    unsigned long end = Utils::clockTimeMs();
+    if (mFrame % 100 == 0)
+    {
+        std::cout << "FPS: " << 1000.0 / (end - start) << std::endl;
+    }
     glFlush();
 }
 

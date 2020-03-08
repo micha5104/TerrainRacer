@@ -14,9 +14,10 @@ Triangle::Triangle()
 
 Triangle::Triangle(const Triangle& other)
 {
-    mCorners[0] = other.getCorner(0);
-    mCorners[1] = other.getCorner(1);
-    mCorners[2] = other.getCorner(2);
+    for (int i = 0; i < 3; ++i)
+    {
+        mCorners[i] = other.getCorner(i);
+    }
 }
 
 std::array<glm::vec3, 3> Triangle::getCorners() const
@@ -43,8 +44,19 @@ glm::vec3 Triangle::getNormal() const
     return glm::normalize(res);
 }
 
+glm::vec3 Triangle::getIncircleCenter() const
+{
+    // see https://en.wikipedia.org/wiki/Incenter#Barycentric_coordinates
+    double a = glm::length(mCorners[2] - mCorners[1]);
+    double b = glm::length(mCorners[0] - mCorners[2]);
+    double c = glm::length(mCorners[1] - mCorners[0]);
+    double P = a + b + c;
+    glm::vec3 barycentric(a / P, b / P, c / P);
+    return barycentricToCartesian(barycentric);
+}
+
 bool Triangle::cartesianToBarycentric(const glm::vec2& v, double& a, double& b, double& c) const
-                {
+{
     // see https://en.wikipedia.org/wiki/Barycentric_coordinate_system
     double det = (mCorners[1][1] - mCorners[2][1]) * (mCorners[0][0] - mCorners[2][0]) +
                     (mCorners[2][0] - mCorners[1][0]) * (mCorners[0][1] - mCorners[2][1]);
@@ -63,6 +75,11 @@ bool Triangle::cartesianToBarycentric(const glm::vec2& v, double& a, double& b, 
 
     c = 1 - a - b;
     return true;
+}
+
+glm::vec3 Triangle::barycentricToCartesian(const glm::vec3& barycentric) const
+{
+    return barycentric.x * mCorners[0] + barycentric.y * mCorners[1] + barycentric.z * mCorners[2];
 }
 
 double Triangle::interpolateHeight(float x, float y) const
@@ -96,6 +113,11 @@ bool Triangle::operator ==(const Triangle& other) const
         }
     }
     return true;
+}
+
+bool Triangle::operator !=(const Triangle& other) const
+{
+    return ((*this == other) == false);
 }
 
 Triangle& Triangle::operator =(const Triangle &right)

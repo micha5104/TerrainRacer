@@ -41,6 +41,7 @@ public:
     const GLfloat* getMaterialShininess();
 
     void draw(glm::vec2 position, float radius);
+    void drawNormals(glm::vec2 position, float radius);
 
 protected:
     bool loadHeightmap(const std::string& filename);
@@ -59,6 +60,7 @@ protected:
     int mDimY = 101;
     std::vector<std::vector<double>> mSupportPoints; // spacing between points is 10m
     std::vector<Triangle> mTriangles;
+    std::vector<glm::vec3> mTriangleNormals;
     double mMaxDeviationBetweenSupportPoints = 3.0;
     double mScale = 10.0;
     Triangle mCurrentTriangle;
@@ -69,6 +71,5 @@ protected:
                     { 50.0 };
 
     Jpeg mHeightMap;
-
 };
 #endif
